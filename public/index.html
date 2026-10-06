@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Bestie 🎀</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎀</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#fff8fb;--side:#fde6ef;--card:#fff;--line:#f6c9da;--pink:#e8457f;--rose:#7a2a49;--text:#4a2133;--soft:#a56a82}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Nunito,system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex}
+aside{width:270px;background:var(--side);border-right:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.logo{font-weight:800;font-size:20px;color:var(--rose)}
+button{font:inherit;cursor:pointer}
+.new{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;color:var(--rose);font-weight:700}
+.new:hover{background:#fff0f6}
+.file{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;color:var(--soft);word-break:break-word}
+.file b{display:block;color:var(--text);margin-bottom:2px}
+.soon{margin-top:auto;font-size:13px;color:var(--soft);line-height:1.5}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+#feed{flex:1;overflow-y:auto;padding:28px 16px}
+.col{max-width:740px;margin:0 auto}
+.hello{text-align:center;margin-top:12vh}
+.hello h1{font-size:34px;margin:0 0 8px;color:var(--rose)}
+.hello p{color:var(--soft);margin:0 0 22px}
+.drop{display:inline-block;background:var(--pink);color:#fff;border-radius:999px;padding:12px 26px;font-weight:800;cursor:pointer}
+.drop:hover{background:#d63a71}
+.msg{display:flex;gap:12px;margin-bottom:22px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--side);display:grid;place-items:center;flex:none}
+.msg.user .av{background:var(--pink)}
+.bub{line-height:1.6;padding-top:5px;min-width:0}
+.msg.user .bub{background:var(--side);border-radius:16px;padding:8px 14px}
+.bub p{margin:0 0 10px}.bub ul{margin:0 0 10px;padding-left:22px}
+.dots{color:var(--soft)}
+footer{padding:12px 16px 18px}
+.bar{max-width:740px;margin:0 auto;display:flex;gap:8px;align-items:flex-end;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:8px 8px 8px 18px;box-shadow:0 4px 18px rgba(232,69,127,.08)}
+.bar:focus-within{border-color:var(--pink)}
+textarea{flex:1;border:0;outline:0;resize:none;font:inherit;color:var(--text);background:none;max-height:140px;padding:8px 0}
+.send{background:var(--pink);color:#fff;border:0;border-radius:50%;width:38px;height:38px;font-size:18px}
+.send:disabled{background:var(--line);cursor:default}
+:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+[hidden]{display:none!important}
+.tools{display:flex;flex-direction:column;gap:8px}
+.tools button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;color:var(--rose);font-weight:700}
+.tools button:hover{background:#fff0f6}
+.mini{display:inline-block;text-decoration:none;background:var(--pink);color:#fff;border:0;border-radius:999px;padding:8px 16px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 22px;min-height:140px;display:grid;place-items:center;text-align:center;cursor:pointer;font-size:18px;margin-bottom:10px}
+.nav{display:flex;gap:8px;justify-content:space-between;align-items:center;color:var(--soft);font-size:14px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:6px 0;color:var(--text)}
+.opt.right{background:#e6f7ec;border-color:#6cc58a}.opt.wrong{background:#fde8e8;border-color:#e58a8a}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--line);padding:8px;text-align:left}th{background:var(--side)}
+.vid{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;text-decoration:none;color:var(--text)}
+.vid:hover{background:#fff0f6}
+.vid img{width:140px;border-radius:8px;flex:none}
+.vid span{color:var(--soft);font-size:13px}
+.bub{overflow-x:auto}
+@media(max-width:760px){
+  body{flex-direction:column}
+  main{min-height:0}
+  aside{width:100%;border-right:0;border-bottom:1px solid var(--line);padding:10px;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;max-height:45vh}
+  .logo{width:100%}
+  .tools{flex-direction:row;flex-wrap:wrap}
+  .file{flex:1 1 100%}
+  .vid img{width:96px}
+  .hello{margin-top:4vh}
+}
+</style>
+</head>
+<body>
+<aside>
+  <div class="logo">Study Bestie 🎀</div>
+  <button class="new" id="newChat">+ New chat</button>
+  <div class="file" id="fileCard" hidden><b id="fileName"></b><span id="fileInfo"></span></div>
+  <div class="tools" id="tools" hidden>
+    <button data-t="flashcards">🃏 Flashcards</button>
+    <button data-t="quiz">📝 Quiz me</button>
+    <button data-t="shortforms">🧠 Short forms</button>
+    <button data-t="notes">📒 Word notes</button>
+    <button data-t="videos">▶️ Watch &amp; learn</button>
+  </div>
+</aside>
+<main>
+  <div id="feed"><div class="col" id="col">
+    <div class="hello" id="hello">
+      <h1>Hey bestie 🎀</h1>
+      <p>Drop in a PDF and I'll sum it up, then answer anything about it.</p>
+      <label class="drop">Choose a PDF<input type="file" id="pdf" accept="application/pdf" hidden></label>
+    </div>
+  </div></div>
+  <footer><div class="bar">
+    <textarea id="q" rows="1" placeholder="Upload a PDF to start chatting" disabled></textarea>
+    <button class="send" id="send" disabled aria-label="Send">➤</button>
+  </div></footer>
+</main>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const $=s=>document.querySelector(s);
+const STOP=new Set("the a an and or of to in on for is are was were be by with as at it this that from what how why which who do does about me you".split(" "));
+let chunks=[],history=[],pdfText="",busy=false;
+
+const tokens=t=>(t.toLowerCase().match(/[a-z0-9]+/g)||[]).filter(w=>!STOP.has(w));
+function chunk(t,size=1000,overlap=200){const out=[];for(let i=0;i<t.length;i+=size-overlap)out.push(t.slice(i,i+size));return out}
+function retrieve(q,k=4){
+  const qw=new Set(tokens(q)),n=chunks.length;
+  const tf=chunks.map(c=>{const m={};tokens(c).forEach(w=>m[w]=(m[w]||0)+1);return m});
+  const df={};tf.forEach(m=>Object.keys(m).forEach(w=>df[w]=(df[w]||0)+1));
+  const score=tf.map(m=>[...qw].reduce((s,w)=>m[w]?s+(1+Math.log(m[w]))*Math.log((n+1)/(df[w]+.5)):s,0));
+  return score.map((s,i)=>[s,i]).sort((a,b)=>b[0]-a[0]).slice(0,k).map(x=>x[1]).sort((a,b)=>a-b).map(i=>chunks[i]).join("\n---\n");
+}
+async function readPdf(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let t="";
+  for(let i=1;i<=pdf.numPages;i++){const c=await(await pdf.getPage(i)).getTextContent();t+=c.items.map(x=>x.str).join(" ")+"\n"}
+  return t;
+}
+async function api(path,body){
+  const r=await fetch("/api/"+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error(r.status==429?"rate":"fail");
+  return (await r.json()).reply;
+}
+function md(s){
+  const esc=s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  let html="",list=false;
+  for(const line of esc.split("\n")){
+    const li=line.match(/^\s*[-*•]\s+(.*)/);
+    if(li){if(!list){html+="<ul>";list=true}html+="<li>"+li[1]+"</li>"}
+    else{if(list){html+="</ul>";list=false}if(line.trim())html+="<p>"+line+"</p>"}
+  }
+  return html+(list?"</ul>":"");
+}
+function add(role,html){
+  const d=document.createElement("div");d.className="msg "+role;
+  d.innerHTML=`<div class="av">${role=="user"?"🎀":"🌸"}</div><div class="bub">${html}</div>`;
+  $("#col").appendChild(d);$("#feed").scrollTop=1e9;return d.querySelector(".bub");
+}
+const friendly=e=>e.message=="rate"?"I'm a little overwhelmed bestie 🥺 give me a minute and try again!":"Something went wrong 🥺 please try again.";
+
+$("#pdf").addEventListener("change",async e=>{
+  const f=e.target.files[0];if(!f)return;
+  $("#hello").remove();
+  const b=add("bot",'<span class="dots">Reading your PDF... 🌸</span>');
+  try{
+    pdfText=await readPdf(f);
+    if(!pdfText.trim())throw new Error("empty");
+    chunks=chunk(pdfText);history=[];
+    $("#fileCard").hidden=false;$("#fileName").textContent=f.name;
+    $("#fileInfo").textContent=Math.max(1,Math.round(pdfText.length/1800))+" pages of text ready";
+    b.innerHTML='<span class="dots">Summarizing the main points... ✨</span>';
+    const s=await api("summary",{text:pdfText});
+    b.innerHTML=md(s);history.push({role:"assistant",content:s});
+    $("#q").disabled=false;$("#send").disabled=false;$("#q").placeholder="Ask me anything about your PDF 💖";$("#q").focus();
+    $("#tools").hidden=false;
+  }catch(err){
+    b.innerHTML=err.message=="empty"?"I couldn't find any text in this PDF 🥺 It may be a scanned file.":friendly(err);
+  }
+});
+async function send(){
+  const q=$("#q").value.trim();if(!q||busy)return;
+  busy=true;$("#q").value="";$("#q").style.height="auto";
+  add("user",md(q));
+  const b=add("bot",'<span class="dots">Thinking... 🤔</span>');
+  const prev=history.filter(m=>m.role=="user").pop();
+  const searchText=q.split(/\s+/).length<6&&prev?prev.content+" "+q:q;
+  try{
+    const r=await api("chat",{question:q,context:retrieve(searchText),history});
+    b.innerHTML=md(r);history.push({role:"user",content:q},{role:"assistant",content:r});
+  }catch(err){b.innerHTML=friendly(err)}
+  busy=false;$("#feed").scrollTop=1e9;
+}
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+function flashcards(b,c){let i=0,f=false;
+  const draw=()=>{
+    b.innerHTML=`<div class="card" id="fc">${esc(f?c[i].a:c[i].q)}</div><div class="nav"><button class="mini" id="pv">‹</button><span>${i+1} / ${c.length} · tap the card to flip</span><button class="mini" id="nx">›</button></div>`;
+    b.querySelector("#fc").onclick=()=>{f=!f;draw()};
+    b.querySelector("#pv").onclick=()=>{i=(i+c.length-1)%c.length;f=false;draw()};
+    b.querySelector("#nx").onclick=()=>{i=(i+1)%c.length;f=false;draw()};
+  };draw()}
+function quiz(b,qs){let i=0,score=0;
+  const draw=()=>{
+    if(i>=qs.length){b.innerHTML=`<p><b>You scored ${score} / ${qs.length}</b> ${score>=qs.length*.8?"🎀 Amazing bestie!":"💖 Nice try, review and go again!"}</p>`;return}
+    const q=qs[i];
+    b.innerHTML=`<p><b>Q${i+1}.</b> ${esc(q.q)}</p>`+q.options.map((o,j)=>`<button class="opt" data-j="${j}">${esc(o)}</button>`).join("")+'<p id="why"></p>';
+    b.querySelectorAll(".opt").forEach(o=>o.onclick=()=>{
+      const j=+o.dataset.j;
+      b.querySelectorAll(".opt").forEach((x,k)=>{x.disabled=true;if(k==q.answer)x.classList.add("right")});
+      if(j==q.answer)score++;else o.classList.add("wrong");
+      b.querySelector("#why").innerHTML=esc(q.why||"")+'<br><br><button class="mini" id="nx">Next</button>';
+      b.querySelector("#nx").onclick=()=>{i++;draw()};
+    });
+  };draw()}
+function shortforms(b,s){
+  b.innerHTML=s.length?'<table><tr><th>Short</th><th>Full form</th><th>Memory trick</th></tr>'+s.map(x=>`<tr><td><b>${esc(x.short)}</b></td><td>${esc(x.full)}</td><td>${esc(x.trick)}</td></tr>`).join("")+"</table>":"I couldn't find short forms in this PDF 🥺";
+}
+function videos(b,v){
+  b.innerHTML=v.length?'<p>Here are some videos to help you understand 🎬</p>'+v.map(x=>`<a class="vid" href="https://www.youtube.com/watch?v=${esc(x.id)}" target="_blank" rel="noopener"><img src="${esc(x.thumb)}" alt=""><div><b>${esc(x.title)}</b><br><span>${esc(x.channel)}</span></div></a>`).join(""):"I couldn't find videos 🥺";
+}
+document.querySelectorAll("#tools button").forEach(btn=>btn.onclick=async()=>{
+  const t=btn.dataset.t;
+  const b=add("bot",'<span class="dots">Working on it... ✨</span>');
+  try{
+    const r=await fetch("/api/"+t,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:pdfText})});
+    if(!r.ok)throw new Error(r.status==429?"rate":"fail");
+    if(t=="notes"){
+      const u=URL.createObjectURL(await r.blob());
+      b.innerHTML=`Your notes are ready 🎀<br><br><a class="mini" href="${u}" download="my_notes.docx">Download Word notes</a>`;return;
+    }
+    const data=(await r.json()).items;
+    ({flashcards,quiz,shortforms,videos})[t](b,data);
+  }catch(e){b.innerHTML=friendly(e)}
+});
+$("#send").onclick=send;
+$("#q").addEventListener("keydown",e=>{if(e.key=="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("#q").addEventListener("input",e=>{e.target.style.height="auto";e.target.style.height=e.target.scrollHeight+"px"});
+$("#newChat").onclick=()=>location.reload();
+</script>
+</body>
+</html>
