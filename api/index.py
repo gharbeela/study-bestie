@@ -4,8 +4,8 @@ import json
 import re
 
 import requests
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import Response
+from fastapi import FastAPI, APIRouter, HTTPException, Request
+from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
 from groq import Groq
 from docx import Document
@@ -18,7 +18,17 @@ except ImportError:
     pass
 
 app = FastAPI()
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+router = APIRouter()
+
+
+@app.exception_handler(404)
+async def not_found(request: Request, exc):
+    # Shows which path Vercel actually gave us, so we can debug routing.
+    return JSONResponse({"detail": "Not Found", "saw_path": request.url.path}, status_code=404)
+
+# Don't crash the whole site at startup if the key is missing on the server.
+GROQ_KEY = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=GROQ_KEY) if GROQ_KEY else None
 MODEL = "openai/gpt-oss-120b"
 
 PERSONALITY = """You are 'Study Bestie', a sweet, cheerful, girly study buddy 🎀.
@@ -54,6 +64,8 @@ class Doc(BaseModel):
 
 
 def generate(messages):
+    if client is None:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not set on the server")
     try:
         r = client.chat.completions.create(model=MODEL, messages=messages)
         return r.choices[0].message.content
@@ -73,7 +85,18 @@ def gen_json(task, text):
         raise HTTPException(status_code=500, detail="Bad JSON from model")
 
 
-@app.post("/api/summary")
+def as_list(data):
+    """Sometimes the model wraps the list in an object. Pull the list out."""
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        for v in data.values():
+            if isinstance(v, list):
+                return v
+    return []
+
+
+@router.post("/summary")
 def summary(body: Summary):
     return {"reply": generate([
         {"role": "system", "content": SUMMARY_SYSTEM},
@@ -81,7 +104,7 @@ def summary(body: Summary):
     ])}
 
 
-@app.post("/api/chat")
+@router.post("/chat")
 def chat(body: Chat):
     messages = [{"role": "system", "content": CHAT_SYSTEM}]
     for m in body.history[-6:]:
@@ -91,33 +114,35 @@ def chat(body: Chat):
     return {"reply": generate(messages)}
 
 
-@app.post("/api/flashcards")
+@router.post("/flashcards")
 def flashcards(body: Doc):
-    return {"items": gen_json(
-        'Make 10 flashcards. JSON: [{"q":"question","a":"short answer"}]', body.text)}
+    return {"items": as_list(gen_json(
+        'Make 10 flashcards. JSON: [{"q":"question","a":"short answer"}]', body.text))}
 
 
-@app.post("/api/quiz")
+@router.post("/quiz")
 def quiz(body: Doc):
-    return {"items": gen_json(
+    return {"items": as_list(gen_json(
         'Make 5 multiple-choice questions. JSON: [{"q":"...","options":["...","...","...","..."],'
         '"answer":0,"why":"one-line explanation"}] where answer is the index of the right option.',
-        body.text)}
+        body.text))}
 
 
-@app.post("/api/shortforms")
+@router.post("/shortforms")
 def shortforms(body: Doc):
-    return {"items": gen_json(
+    return {"items": as_list(gen_json(
         'Find the abbreviations and short forms in the material (max 12) and give each a fun memory '
         'trick. JSON: [{"short":"BFS","full":"Breadth First Search","trick":"..."}]. '
-        'If there are none, return [].', body.text)}
+        'If there are none, return [].', body.text))}
 
 
-@app.post("/api/notes")
+@router.post("/notes")
 def notes(body: Doc):
     n = gen_json(
         'Make exam notes. JSON: {"title":"...","overview":"...","sections":'
         '[{"heading":"...","points":["..."]}],"remember":["..."]}', body.text)
+    if not isinstance(n, dict):
+        raise HTTPException(status_code=500, detail="Bad notes format")
     doc = Document()
     pink = RGBColor(0xE9, 0x4F, 0x8A)
 
@@ -132,47 +157,52 @@ def notes(body: Doc):
     for s in n.get("sections", []):
         head("✨ " + s.get("heading", ""))
         for p in s.get("points", []):
-            doc.add_paragraph(p, style="List Bullet")
+            doc.add_paragraph(str(p), style="List Bullet")
     if n.get("remember"):
         head("💡 Remember This")
         for p in n["remember"]:
-            doc.add_paragraph(p, style="List Bullet")
+            doc.add_paragraph(str(p), style="List Bullet")
     buf = io.BytesIO()
     doc.save(buf)
     return Response(buf.getvalue(),
                     media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
 
-@app.post("/api/videos")
+@router.post("/videos")
 def videos(body: Doc):
-    queries = gen_json(
+    yt_key = os.environ.get("YOUTUBE_API_KEY")
+    if not yt_key:
+        raise HTTPException(status_code=500, detail="YOUTUBE_API_KEY is not set on the server")
+
+    queries = as_list(gen_json(
         'Give 3 short YouTube search queries that would help a student understand the main '
-        'concepts of this material. JSON: ["query one","query two","query three"]', body.text)
-    if not isinstance(queries, list):
-        queries = []
+        'concepts of this material. JSON: ["query one","query two","query three"]', body.text))
 
     items, seen = [], set()
     for q in queries[:3]:
-        r = requests.get(
-            "https://www.googleapis.com/youtube/v3/search",
-            params={
-                "part": "snippet",
-                "q": str(q) + " explained",
-                "type": "video",
-                "maxResults": 2,
-                "videoEmbeddable": "true",
-                "safeSearch": "strict",
-                "key": os.environ.get("YOUTUBE_API_KEY"),
-            },
-            timeout=10,
-        )
+        try:
+            r = requests.get(
+                "https://www.googleapis.com/youtube/v3/search",
+                params={
+                    "part": "snippet",
+                    "q": str(q) + " explained",
+                    "type": "video",
+                    "maxResults": 2,
+                    "videoEmbeddable": "true",
+                    "safeSearch": "strict",
+                    "key": yt_key,
+                },
+                timeout=10,
+            )
+        except requests.RequestException:
+            continue
         if r.status_code == 403:
-            raise HTTPException(status_code=429, detail="YouTube quota reached")
+            raise HTTPException(status_code=429, detail="YouTube quota reached or API not enabled")
         if r.status_code != 200:
             continue
         for v in r.json().get("items", []):
-            vid = v["id"]["videoId"]
-            if vid in seen:
+            vid = v.get("id", {}).get("videoId")
+            if not vid or vid in seen:
                 continue
             seen.add(vid)
             sn = v["snippet"]
@@ -180,9 +210,24 @@ def videos(body: Doc):
                 "id": vid,
                 "title": sn["title"],
                 "channel": sn["channelTitle"],
-                "thumb": sn["thumbnails"]["medium"]["url"],
+                "thumb": sn.get("thumbnails", {}).get("medium", {}).get("url", ""),
             })
     return {"items": items}
+
+
+@router.get("/health")
+def health():
+    return {
+        "ok": True,
+        "groq_key": bool(GROQ_KEY),
+        "youtube_key": bool(os.environ.get("YOUTUBE_API_KEY")),
+    }
+
+
+# Work whether Vercel passes /api/summary, /summary or /api/index/summary
+app.include_router(router, prefix="/api")
+app.include_router(router, prefix="/api/index")
+app.include_router(router)
 
 
 # Local development only: serve the website from the same server.
